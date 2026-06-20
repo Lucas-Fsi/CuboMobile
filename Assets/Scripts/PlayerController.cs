@@ -3,14 +3,20 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header ("Movement Settings")]
+    [Header("Movement Settings")]
     private Rigidbody rb;
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float maxSpeed = 5f;
     [SerializeField] private float jumpForce = 7f;
     private Vector2 moveInput;
 
+    [Header("Particulas")]
+    public ParticleSystem particulas;
+
+
     private bool isGrounded = true;
+
+    public float money = 0;
 
 
 
@@ -19,7 +25,7 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-    
+
     }
 
     private void FixedUpdate()
@@ -54,9 +60,22 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Obstacle"))
         {
-            isGrounded = true;
+            Instantiate(particulas, transform.position, Quaternion.identity);
+            GameManager.Instance.GameOver();
+            Destroy(gameObject);
+        }
+
+
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Coin"))
+        {
+            money += 10;
+            Destroy(other.gameObject);
         }
     }
 }
