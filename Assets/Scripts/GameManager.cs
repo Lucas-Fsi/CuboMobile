@@ -1,6 +1,8 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -35,6 +37,17 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI txtScore;
     public PlayerController playerController;
 
+    [Header("PauseMenu")]
+    public GameObject pauseMenu;
+
+    [Header("InicioMenu")]
+    public GameObject StartMenu;
+    bool gameStarted = false;
+    private bool InicioRapido = false;
+
+    [Header("GameOverMenu")]
+    public GameObject GameOverMenu;
+
 
     private void Awake()
     {
@@ -49,6 +62,7 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
+
         StartCoroutine(SpawnObstacle());
         StartCoroutine(SpawnCoins());
 
@@ -60,7 +74,28 @@ public class GameManager : MonoBehaviour
 
         Score();
 
+        MetodoPause();
+
     }
+
+
+    public void MetodoPause()
+    {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            if (Time.timeScale == 0f)
+            {
+                StartCoroutine(ScaleTime(0f, 1f, 0.5f));
+                pauseMenu.SetActive(false);
+            }
+            else if (Time.timeScale == 1f)
+            {
+                StartCoroutine(ScaleTime(1f, 0f, 0.5f));
+                pauseMenu.SetActive(true);
+            }
+        }
+    }
+
     private IEnumerator SpawnObstacle()
     {
         while (!gameOver)
@@ -115,11 +150,40 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Enabled()
+    {
+        gameObject.SetActive(true);
+        StartMenu.SetActive(false);
+    }
+
 
 
     public void GameOver()
     {
+        GameOverMenu.SetActive(true);
         gameOver = true;
+       
 
+    }
+
+    public IEnumerator ScaleTime(float start, float end, float duration )
+    {
+        float lastTime = Time.realtimeSinceStartup;
+        float timer = 0.0f;
+
+        while (timer < duration)
+        {
+            Time.timeScale = Mathf.Lerp(start, end, timer/ duration);
+
+            Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+            timer += Time.realtimeSinceStartup - lastTime;
+            lastTime = Time.realtimeSinceStartup;
+
+            yield return null;
+
+        }
+        Time.timeScale = end;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
 }

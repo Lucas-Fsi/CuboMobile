@@ -1,5 +1,7 @@
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -13,6 +15,10 @@ public class PlayerController : MonoBehaviour
     [Header("Particulas")]
     public ParticleSystem particulas;
 
+    [Header("Cameras")]
+    private CinemachineImpulseSource _impulseSource;
+
+
 
     private bool isGrounded = true;
 
@@ -20,16 +26,16 @@ public class PlayerController : MonoBehaviour
 
 
 
-
-
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        _impulseSource =GetComponent<CinemachineImpulseSource>();
 
     }
 
     private void FixedUpdate()
     {
+        if (GameManager.Instance == null) return;
         Movimentacao();
     }
 
@@ -65,6 +71,7 @@ public class PlayerController : MonoBehaviour
             Instantiate(particulas, transform.position, Quaternion.identity);
             GameManager.Instance.GameOver();
             Destroy(gameObject);
+            _impulseSource.GenerateImpulse();
         }
 
 
